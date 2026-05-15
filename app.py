@@ -27,24 +27,171 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS with beautiful styling
 st.markdown("""
     <style>
-    .main {
-        padding: 0rem 0rem;
+    * {
+        margin: 0;
+        padding: 0;
     }
+    
+    .main {
+        padding: 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    
+    .header-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        border-radius: 15px;
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .header-container h1 {
+        font-size: 3em;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    
+    .header-container p {
+        font-size: 1.2em;
+        opacity: 0.95;
+    }
+    
     .metric-card {
-        background-color: #f0f2f6;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 25px;
+        border-radius: 12px;
+        margin: 15px 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        color: white;
+        text-align: center;
+        border-left: 5px solid #f093fb;
+    }
+    
+    .metric-card h3 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    .metric-card .metric-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #f093fb;
+    }
+    
+    .stat-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin: 10px;
+        border-top: 4px solid #667eea;
+        text-align: center;
+    }
+    
+    .stat-box h4 {
+        color: #667eea;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+    
+    .stat-box .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #764ba2;
+    }
+    
+    .commodity-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        border-left: 5px solid #667eea;
+        text-align: center;
+    }
+    
+    .commodity-icon {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+    }
+    
+    .model-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin: 15px 0;
+        border-left: 5px solid #667eea;
+    }
+    
+    .model-card h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+    
+    .prediction-result {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 30px;
+        border-radius: 15px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        margin: 20px 0;
+    }
+    
+    .prediction-result h2 {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+    }
+    
+    .prediction-value {
+        font-size: 3em;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .tab-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .feature-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
         padding: 20px;
         border-radius: 10px;
         margin: 10px 0;
+        text-align: center;
     }
+    
+    .feature-box h3 {
+        margin-bottom: 10px;
+    }
+    
+    .feature-box .number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #f093fb;
+    }
+    
     </style>
     """, unsafe_allow_html=True)
 
 # Title
-st.title("🌾 Food Price Stability - Predictive Analytics")
-st.markdown("### Predicting Food Prices in Kenya Using Machine Learning")
+st.markdown("""
+    <div class="header-container">
+        <h1>🌾 Food Price Stability 📊</h1>
+        <p>Predictive Analytics for Kenyan Agricultural Commodities</p>
+        <p style="font-size: 0.9em; margin-top: 10px;">Powered by Machine Learning | Real-time Price Forecasting</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Initialize session state
 if 'model_cache' not in st.session_state:
@@ -188,10 +335,16 @@ def evaluate_model(model, X_test, y_test):
 
 # Sidebar
 with st.sidebar:
-    st.header("⚙️ Configuration")
+    st.markdown("""
+        <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 10px; color: white; margin-bottom: 20px;">
+            <h2 style="margin-bottom: 10px;">⚙️ Configuration</h2>
+            <p style="opacity: 0.9; font-size: 0.9em;">Customize your analysis</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Model selection
-    st.subheader("Model Selection")
+    st.subheader("🤖 Model Selection")
     available_models = ["Linear Regression", "Random Forest"]
     if XGBOOST_AVAILABLE:
         available_models.append("XGBoost")
@@ -202,21 +355,27 @@ with st.sidebar:
         default=["Random Forest"] if len(available_models) > 1 else ["Linear Regression"]
     )
     
+    st.markdown("---")
+    
     # Prediction section
-    st.subheader("📊 Make a Prediction")
+    st.subheader("🔮 Make a Prediction")
+    st.markdown("**Fill in the details below to predict food prices**")
+    
     with st.form("prediction_form"):
-        location = st.selectbox("Location (County):", [
+        location = st.selectbox("📍 Location (County):", [
             "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Kiambu", "Kajiado",
-            "Uasin Gishu", "Kericho", "Nyeri", "Kirinyaga"
+            "Uasin Gishu", "Kericho", "Nyeri", "Kirinyaga", "Machakos", "Muranga",
+            "Bungoma", "Kakamega", "Kisii", "Migori", "Homa Bay", "Garissa"
         ])
-        commodity = st.selectbox("Commodity:", [
-            "Maize", "Beans", "Rice", "Sorghum", "Millet", "Wheat"
+        commodity = st.selectbox("🌾 Commodity:", [
+            "Maize", "Rice", "Beans", "Sorghum", "Millet", "Wheat", "White maize",
+            "Kidney beans", "Pigeon peas", "Cassava", "Potatoes", "Onions"
         ])
-        price_type = st.selectbox("Price Type:", ["Retail", "Wholesale"])
-        month = st.slider("Month:", 1, 12, 6)
-        year = st.slider("Year:", 2020, 2026, 2024)
+        price_type = st.selectbox("💳 Price Type:", ["Retail", "Wholesale"])
+        month = st.slider("📅 Month:", 1, 12, 6)
+        year = st.slider("📆 Year:", 2020, 2026, 2024)
         
-        submit = st.form_submit_button("🔮 Predict Price")
+        submit = st.form_submit_button("🔮 Predict Price", use_container_width=True)
 
 # Main content
 st.markdown("---")
@@ -229,59 +388,111 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
     tab1, tab2, tab3 = st.tabs(["📈 Dashboard", "🤖 Model Training", "📊 Predictions"])
     
     with tab1:
-        st.header("Data Overview")
-        col1, col2, col3 = st.columns(3)
+        st.markdown("<div class='tab-content'>", unsafe_allow_html=True)
+        st.markdown("## 📊 Data Overview & Insights", unsafe_allow_html=True)
         
-        with col1:
-            st.metric("Food Price Records", len(food_df))
-        with col2:
-            st.metric("Rainfall Data Points", len(rainfall_df))
-        with col3:
-            st.metric("Fuel Price Records", len(fuel_df))
+        # Create beautiful stat cards
+        stat_col1, stat_col2, stat_col3 = st.columns(3)
         
-        st.subheader("Data Samples")
-        sample_tabs = st.tabs(["Food Prices", "Rainfall", "Fuel Prices"])
+        with stat_col1:
+            st.markdown("""
+                <div class="stat-box">
+                    <h4>🌽 Food Price Records</h4>
+                    <div class="stat-number">""" + f"{len(food_df):,}" + """</div>
+                </div>
+                """, unsafe_allow_html=True)
         
-        with sample_tabs[0]:
-            st.dataframe(food_df.head(10), use_container_width=True)
-        with sample_tabs[1]:
-            st.dataframe(rainfall_df.head(10), use_container_width=True)
-        with sample_tabs[2]:
-            st.dataframe(fuel_df.head(10), use_container_width=True)
+        with stat_col2:
+            st.markdown("""
+                <div class="stat-box">
+                    <h4>💧 Rainfall Data Points</h4>
+                    <div class="stat-number">""" + f"{len(rainfall_df):,}" + """</div>
+                </div>
+                """, unsafe_allow_html=True)
         
-        # Visualizations
-        st.subheader("Price Trends")
-        col1, col2 = st.columns(2)
+        with stat_col3:
+            st.markdown("""
+                <div class="stat-box">
+                    <h4>⛽ Fuel Price Records</h4>
+                    <div class="stat-number">""" + f"{len(fuel_df):,}" + """</div>
+                </div>
+                """, unsafe_allow_html=True)
         
-        with col1:
+        st.markdown("---")
+        
+        # Commodities section
+        st.markdown("### 🌾 Key Commodities Tracked")
+        commodities = food_df['commodity'].unique()[:6]
+        
+        commodity_icons = {
+            'Maize': '🌽', 'Rice': '🍚', 'Beans': '🫘', 
+            'Wheat': '🌾', 'Sorghum': '🌾', 'Millet': '🌾'
+        }
+        
+        comm_cols = st.columns(len(commodities))
+        for idx, commodity in enumerate(commodities):
+            with comm_cols[idx]:
+                icon = commodity_icons.get(commodity, '🌾')
+                st.markdown(f"""
+                    <div class="commodity-card">
+                        <div class="commodity-icon">{icon}</div>
+                        <h4>{commodity}</h4>
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Data visualization
+        st.markdown("### 📈 Price Trends Analysis")
+        chart_col1, chart_col2 = st.columns(2)
+        
+        with chart_col1:
+            st.markdown("#### Average Food Prices Over Time")
             fig, ax = plt.subplots(figsize=(10, 5))
             food_df['date'] = pd.to_datetime(food_df['date'])
             daily_avg = food_df.groupby(food_df['date'].dt.to_period('M'))['price'].mean()
-            ax.plot(daily_avg.index.astype(str), daily_avg.values, marker='o', linewidth=2)
-            ax.set_title("Average Food Prices Over Time")
-            ax.set_xlabel("Date")
+            ax.fill_between(range(len(daily_avg)), daily_avg.values, alpha=0.3, color='#667eea')
+            ax.plot(range(len(daily_avg)), daily_avg.values, marker='o', linewidth=2.5, 
+                   color='#667eea', markersize=4)
+            ax.set_title("Price Trajectory", fontsize=12, fontweight='bold')
+            ax.set_xlabel("Time Period")
             ax.set_ylabel("Price (KES)")
-            ax.grid(True, alpha=0.3)
-            plt.xticks(rotation=45)
+            ax.grid(True, alpha=0.3, linestyle='--')
+            ax.set_xticks([])
             st.pyplot(fig)
         
-        with col2:
+        with chart_col2:
+            st.markdown("#### Average Price by Commodity")
             fig, ax = plt.subplots(figsize=(10, 5))
             commodity_avg = food_df.groupby('commodity')['price'].mean().sort_values(ascending=False).head(10)
-            commodity_avg.plot(kind='barh', ax=ax, color='steelblue')
-            ax.set_title("Average Price by Commodity")
-            ax.set_xlabel("Price (KES)")
+            colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#ffa502']
+            colors = (colors * (len(commodity_avg) // len(colors) + 1))[:len(commodity_avg)]
+            commodity_avg.plot(kind='barh', ax=ax, color=colors)
+            ax.set_title("Top Commodities by Price", fontsize=12, fontweight='bold')
+            ax.set_xlabel("Average Price (KES)")
+            ax.grid(True, alpha=0.3, axis='x', linestyle='--')
             st.pyplot(fig)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     
     with tab2:
-        st.header("🤖 Model Training & Evaluation")
+        st.markdown("<div class='tab-content'>", unsafe_allow_html=True)
+        st.markdown("## 🤖 Machine Learning Model Training", unsafe_allow_html=True)
         
-        if st.button("Train Models", key="train_btn"):
-            with st.spinner("Training models... This may take a few minutes"):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.markdown("Train multiple models and compare their performance")
+        with col2:
+            train_button = st.button("🚀 Train Models", key="train_btn", use_container_width=True)
+        
+        if train_button:
+            with st.spinner("🔄 Training models... This may take a few minutes"):
+                progress_bar = st.progress(0)
                 # Preprocess data
                 X_train, X_test, y_train, y_test, scaler, encoder, merged_df = preprocess_and_train_models(
                     food_df, rainfall_df, fuel_df
                 )
+                progress_bar.progress(20)
                 
                 if X_train is not None:
                     st.session_state.model_cache = {}
@@ -295,7 +506,8 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                     if XGBOOST_AVAILABLE:
                         models_to_train["XGBoost"] = train_xgboost
                     
-                    for model_name, train_func in models_to_train.items():
+                    model_count = len(models_to_train)
+                    for idx, (model_name, train_func) in enumerate(models_to_train.items()):
                         model = train_func(X_train, y_train)
                         if model is not None:
                             y_pred, mae, rmse, r2 = evaluate_model(model, X_test, y_test)
@@ -306,6 +518,7 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                                 'r2': r2,
                                 'y_pred': y_pred
                             }
+                        progress_bar.progress(20 + ((idx + 1) / model_count) * 60)
                     
                     st.session_state.data_cache = {
                         'X_train': X_train,
@@ -317,11 +530,13 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                         'merged_df': merged_df
                     }
                     
-                    st.success("✅ Models trained successfully!")
+                    progress_bar.progress(100)
+                    st.success("✅ All models trained successfully!")
         
         # Display model comparison
         if st.session_state.model_cache:
-            st.subheader("Model Performance Comparison")
+            st.markdown("---")
+            st.markdown("### 📊 Model Performance Comparison")
             
             # Create comparison DataFrame
             comparison_data = []
@@ -334,55 +549,88 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                 })
             
             comparison_df = pd.DataFrame(comparison_data)
-            st.dataframe(comparison_df, use_container_width=True)
             
-            # Visualize comparison
-            col1, col2, col3 = st.columns(3)
+            # Display comparison table with better styling
+            st.markdown("#### Performance Metrics Table")
+            comparison_styled = comparison_df.style.format({
+                'MAE': '{:.2f}',
+                'RMSE': '{:.2f}',
+                'R² Score': '{:.4f}'
+            }).highlight_max(axis=0, color='#90EE90').highlight_min(axis=0, color='#FFB6C6')
+            st.dataframe(comparison_styled, use_container_width=True)
             
-            with col1:
+            st.markdown("---")
+            st.markdown("#### Performance Visualizations")
+            
+            # Visualize comparison with better styling
+            vis_col1, vis_col2, vis_col3 = st.columns(3)
+            
+            with vis_col1:
                 fig, ax = plt.subplots(figsize=(8, 5))
-                ax.barh(comparison_df['Model'], comparison_df['MAE'], color='coral')
-                ax.set_title("Mean Absolute Error (MAE)")
-                ax.set_xlabel("MAE")
+                colors = ['#667eea', '#764ba2', '#f093fb'][:len(comparison_df)]
+                ax.barh(comparison_df['Model'], comparison_df['MAE'], color=colors)
+                ax.set_title("Mean Absolute Error", fontsize=13, fontweight='bold', pad=20)
+                ax.set_xlabel("MAE (KES)")
+                ax.grid(True, alpha=0.3, axis='x', linestyle='--')
+                for i, v in enumerate(comparison_df['MAE']):
+                    ax.text(v + 0.5, i, f'{v:.2f}', va='center', fontweight='bold')
                 st.pyplot(fig)
             
-            with col2:
+            with vis_col2:
                 fig, ax = plt.subplots(figsize=(8, 5))
-                ax.barh(comparison_df['Model'], comparison_df['RMSE'], color='skyblue')
-                ax.set_title("Root Mean Squared Error (RMSE)")
-                ax.set_xlabel("RMSE")
+                colors = ['#667eea', '#764ba2', '#f093fb'][:len(comparison_df)]
+                ax.barh(comparison_df['Model'], comparison_df['RMSE'], color=colors)
+                ax.set_title("Root Mean Squared Error", fontsize=13, fontweight='bold', pad=20)
+                ax.set_xlabel("RMSE (KES)")
+                ax.grid(True, alpha=0.3, axis='x', linestyle='--')
+                for i, v in enumerate(comparison_df['RMSE']):
+                    ax.text(v + 0.5, i, f'{v:.2f}', va='center', fontweight='bold')
                 st.pyplot(fig)
             
-            with col3:
+            with vis_col3:
                 fig, ax = plt.subplots(figsize=(8, 5))
-                ax.barh(comparison_df['Model'], comparison_df['R² Score'], color='lightgreen')
-                ax.set_title("R² Score")
+                colors = ['#667eea', '#764ba2', '#f093fb'][:len(comparison_df)]
+                ax.barh(comparison_df['Model'], comparison_df['R² Score'], color=colors)
+                ax.set_title("R² Score", fontsize=13, fontweight='bold', pad=20)
                 ax.set_xlabel("R² Score")
+                ax.grid(True, alpha=0.3, axis='x', linestyle='--')
+                for i, v in enumerate(comparison_df['R² Score']):
+                    ax.text(v + 0.01, i, f'{v:.4f}', va='center', fontweight='bold')
                 st.pyplot(fig)
             
-            # Actual vs Predicted
-            st.subheader("Actual vs Predicted Prices")
+            st.markdown("---")
+            st.markdown("#### Actual vs Predicted Prices")
+            
             for model_name in comparison_df['Model']:
-                fig, ax = plt.subplots(figsize=(10, 5))
-                y_test = st.session_state.data_cache['y_test']
-                y_pred = st.session_state.model_cache[model_name]['y_pred']
-                
-                ax.scatter(y_test, y_pred, alpha=0.6)
-                ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
-                ax.set_xlabel("Actual Prices")
-                ax.set_ylabel("Predicted Prices")
-                ax.set_title(f"{model_name}: Actual vs Predicted")
-                ax.grid(True, alpha=0.3)
-                st.pyplot(fig)
+                with st.expander(f"📈 {model_name} - Prediction Analysis"):
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    y_test = st.session_state.data_cache['y_test']
+                    y_pred = st.session_state.model_cache[model_name]['y_pred']
+                    
+                    ax.scatter(y_test, y_pred, alpha=0.6, s=50, color='#667eea', edgecolors='#764ba2')
+                    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 
+                           'r--', lw=2.5, label='Perfect Prediction')
+                    ax.set_xlabel("Actual Prices (KES)", fontsize=11, fontweight='bold')
+                    ax.set_ylabel("Predicted Prices (KES)", fontsize=11, fontweight='bold')
+                    ax.set_title(f"{model_name}: Actual vs Predicted Prices", fontsize=13, fontweight='bold', pad=20)
+                    ax.grid(True, alpha=0.3, linestyle='--')
+                    ax.legend(fontsize=10)
+                    st.pyplot(fig)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
     
     with tab3:
-        st.header("🔮 Price Predictions")
+        st.markdown("<div class='tab-content'>", unsafe_allow_html=True)
+        st.markdown("## 🔮 Price Predictions", unsafe_allow_html=True)
         
         if st.session_state.model_cache:
+            # Create comparison dataframe for model info
+            comparison_data = []
+            for model_name in st.session_state.model_cache.keys():
+                comparison_data.append({'Model': model_name})
+            comparison_df = pd.DataFrame(comparison_data)
+            
             if submit:
-                st.subheader(f"Prediction for {commodity} in {location} ({price_type})")
-                st.info(f"📍 Location: {location} | 📦 Commodity: {commodity} | 💳 Type: {price_type} | 📅 {month}/{year}")
-                
                 # Create prediction data
                 prediction_data = pd.DataFrame({
                     'admin2': [location],
@@ -395,8 +643,23 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                     'diesel_price_lag_1': [100.0]
                 })
                 
+                st.markdown("---")
+                st.markdown(f"""
+                    <div class="prediction-result">
+                        <h2>🎯 Prediction Results</h2>
+                        <p style="font-size: 1.1em;">
+                            <strong>{commodity}</strong> in <strong>{location}</strong>
+                        </p>
+                        <p style="font-size: 0.95em; opacity: 0.9;">
+                            📍 {price_type} | 📅 {month}/{year}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown("### Predictions from Different Models")
+                
                 # Display predictions from different models
-                col1, col2, col3 = st.columns(3)
+                prediction_cols = st.columns(len(comparison_df))
                 
                 prediction_results = {}
                 for idx, model_name in enumerate(comparison_df['Model']):
@@ -416,26 +679,95 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                         price_pred = model.predict(pred_input)[0]
                         prediction_results[model_name] = price_pred
                         
-                        if idx % 3 == 0:
-                            col = col1
-                        elif idx % 3 == 1:
-                            col = col2
-                        else:
-                            col = col3
-                        
-                        with col:
-                            st.metric(model_name, f"KES {price_pred:.2f}")
+                        with prediction_cols[idx]:
+                            st.markdown(f"""
+                                <div class="metric-card">
+                                    <h3>{model_name}</h3>
+                                    <div class="metric-value">KES {price_pred:.2f}</div>
+                                </div>
+                                """, unsafe_allow_html=True)
                     
                     except Exception as e:
-                        st.warning(f"Could not predict using {model_name}: {e}")
+                        with prediction_cols[idx]:
+                            st.warning(f"⚠️ {model_name}: {str(e)[:50]}")
                 
-                # Average prediction
+                # Average prediction with beautiful styling
                 if prediction_results:
+                    st.markdown("---")
                     avg_pred = np.mean(list(prediction_results.values()))
-                    st.success(f"### 💰 Average Predicted Price: **KES {avg_pred:.2f}**")
+                    
+                    st.markdown(f"""
+                        <div class="prediction-result" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <h2>💰 Ensemble Prediction</h2>
+                            <p style="font-size: 0.95em; margin-bottom: 20px;">Average of all models</p>
+                            <div class="prediction-value">KES {avg_pred:.2f}</div>
+                            <p style="font-size: 0.9em; margin-top: 15px; opacity: 0.9;">
+                                Based on {len(prediction_results)} model{'s' if len(prediction_results) > 1 else ''}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Additional insights
+                    st.markdown("### 📊 Prediction Insights")
+                    insight_col1, insight_col2, insight_col3 = st.columns(3)
+                    
+                    with insight_col1:
+                        min_pred = min(prediction_results.values())
+                        st.markdown(f"""
+                            <div class="stat-box">
+                                <h4>🔽 Lowest Estimate</h4>
+                                <div class="stat-number">KES {min_pred:.2f}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    
+                    with insight_col2:
+                        max_pred = max(prediction_results.values())
+                        st.markdown(f"""
+                            <div class="stat-box">
+                                <h4>🔝 Highest Estimate</h4>
+                                <div class="stat-number">KES {max_pred:.2f}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    
+                    with insight_col3:
+                        price_range = max_pred - min_pred
+                        st.markdown(f"""
+                            <div class="stat-box">
+                                <h4>📏 Price Range</h4>
+                                <div class="stat-number">KES {price_range:.2f}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    
+                    # Confidence level
+                    confidence = 100 - (price_range / avg_pred * 100) if avg_pred > 0 else 0
+                    confidence = max(0, min(100, confidence))
+                    
+                    st.markdown("---")
+                    st.markdown("### 🎯 Prediction Confidence")
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.progress(confidence / 100)
+                    with col2:
+                        st.markdown(f"<h3 style='text-align: center;'>{confidence:.1f}%</h3>", unsafe_allow_html=True)
+                    
+                    if confidence > 80:
+                        st.success("✅ High confidence prediction - Models are in good agreement")
+                    elif confidence > 60:
+                        st.info("ℹ️ Moderate confidence - Consider market factors")
+                    else:
+                        st.warning("⚠️ Lower confidence - High model variance, use with caution")
         
         else:
-            st.warning("⚠️ Please train models first in the 'Model Training' tab!")
+            st.markdown("""
+                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+                           padding: 40px; border-radius: 15px; color: white; text-align: center;
+                           box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
+                    <h2>⚠️ No Models Trained Yet</h2>
+                    <p style="font-size: 1.1em;">Please train models first in the <strong>Model Training</strong> tab!</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
 else:
     st.error("Unable to load data. Please check if all CSV files exist in the 'data' folder.")
@@ -443,17 +775,50 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("""
-    ### 📚 About This App
-    This application uses machine learning models trained on:
-    - **Food Price Data**: WFP Kenya Food Prices
-    - **Rainfall Data**: Kenya Rainfall Data
-    - **Fuel Prices**: EPRA Pump Prices
-    
-    **Models Used:**
-    - Linear Regression: Simple baseline model
-    - Random Forest: Captures non-linear relationships
-    - XGBoost: Advanced gradient boosting model
-    
-    ---
-    *Food Price Stability - Predictive Analytics | Kenya | 2024*
-""")
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+               padding: 40px; border-radius: 15px; color: white; margin: 30px 0;">
+        
+        <h2 style="text-align: center; margin-bottom: 20px;">📚 About This Application</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <h4>📊 Data Sources</h4>
+                <p style="font-size: 0.9em; line-height: 1.6;">
+                    • WFP Food Prices<br>
+                    • Kenya Rainfall Data<br>
+                    • EPRA Pump Prices
+                </p>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <h4>🤖 ML Models</h4>
+                <p style="font-size: 0.9em; line-height: 1.6;">
+                    • Linear Regression<br>
+                    • Random Forest<br>
+                    • XGBoost
+                </p>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                <h4>🎯 Features</h4>
+                <p style="font-size: 0.9em; line-height: 1.6;">
+                    • Real-time Predictions<br>
+                    • Model Comparison<br>
+                    • Price Trends
+                </p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; margin-top: 20px;">
+            <p style="margin: 5px 0; font-size: 0.95em;">
+                <strong>🌾 Food Price Stability - Predictive Analytics</strong>
+            </p>
+            <p style="margin: 5px 0; font-size: 0.85em; opacity: 0.9;">
+                Kenya Agricultural Commodities | Machine Learning Powered | 2024
+            </p>
+            <p style="margin: 10px 0; font-size: 0.8em; opacity: 0.8;">
+                Built with ❤️ for price stability and food security
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
