@@ -29,3 +29,11 @@ This project utilised three datasets because food prices as stated above depend 
 - CHIRPS → Rainfall data
 - EPRA → Fuel (diesel & petrol) prices
 
+## 🛠️ Tech Stack  
+Python 🐍  
+Pandas & NumPy  
+Scikit-learn  
+Matplotlib & Seaborn  
+Streamlit
+
+
