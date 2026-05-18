@@ -217,15 +217,26 @@ def load_data():
 def preprocess_and_train_models(food_df, rainfall_df, fuel_df):
     """Preprocess data and train models"""
     try:
-        # Process food prices
+        # STEP 1: Clean and prepare food prices
+        food_df = food_df.copy()
+        food_df.columns = food_df.columns.str.lower().str.strip()
         food_df['date'] = pd.to_datetime(food_df['date'])
         food_df['year'] = food_df['date'].dt.year
         food_df['month'] = food_df['date'].dt.month
-        food_df = food_df.rename(columns={'admin1': 'admin2'})
         
-        # Process rainfall
+        # Rename admin1 to admin2 if it exists
+        if 'admin1' in food_df.columns:
+            food_df = food_df.rename(columns={'admin1': 'admin2'})
+        
+        food_df = food_df.reset_index(drop=True)
+        
+        # STEP 2: Clean and prepare rainfall
+        rainfall_df = rainfall_df.copy()
+        rainfall_df.columns = rainfall_df.columns.str.lower().str.strip()
         rainfall_df['date'] = pd.to_datetime(rainfall_df['date'])
-        rainfall_df = rainfall_df.groupby(['PCODE', pd.Grouper(key='date', freq='MS')]).agg({
+        
+        # Group and aggregate
+        rainfall_agg = rainfall_df.groupby(['pcode', pd.Grouper(key='date', freq='MS')]).agg({
             'rfh': 'mean',
             'r3q': 'mean'
         }).reset_index()
@@ -245,63 +256,101 @@ def preprocess_and_train_models(food_df, rainfall_df, fuel_df):
             'KE041': 'Siaya', 'KE042': 'Kisumu', 'KE043': 'Homa Bay', 'KE044': 'Migori',
             'KE045': 'Kisii', 'KE046': 'Nyamira', 'KE047': 'Nairobi'
         }
-        rainfall_df['admin2'] = rainfall_df['PCODE'].str[:5].map(pcode_to_county)
-        rainfall_df = rainfall_df.sort_values(['admin2', 'date'])
-        rainfall_df['r3q_lag_3'] = rainfall_df.groupby('admin2')['r3q'].shift(3)
-        rainfall_df.dropna(subset=['r3q_lag_3'], inplace=True)
+        rainfall_agg['pcode_short'] = rainfall_agg['pcode'].str[:5]
+        rainfall_agg['admin2'] = rainfall_agg['pcode_short'].map(pcode_to_county)
+        rainfall_agg = rainfall_agg.dropna(subset=['admin2'])
         
-        # Process fuel prices
-        fuel_df['Date'] = pd.to_datetime(fuel_df['Date'])
-        fuel_df['Date'] = fuel_df['Date'].dt.to_period('M').dt.to_timestamp()
-        fuel_df = fuel_df.rename(columns={'Date': 'date', 'Diesel (AGO)': 'diesel_price'})
-        fuel_df = fuel_df[['date', 'diesel_price']]
-        fuel_df = fuel_df.sort_values('date')
+        # Calculate lag
+        rainfall_agg = rainfall_agg.sort_values(['admin2', 'date']).reset_index(drop=True)
+        rainfall_agg['r3q_lag_3'] = rainfall_agg.groupby('admin2')['r3q'].shift(3)
+        rainfall_agg = rainfall_agg.dropna(subset=['r3q_lag_3']).reset_index(drop=True)
+        
+        # Keep only needed columns
+        rainfall_clean = rainfall_agg[['date', 'admin2', 'rfh', 'r3q_lag_3']].copy()
+        
+        # STEP 3: Clean and prepare fuel
+        fuel_df = fuel_df.copy()
+        fuel_df.columns = fuel_df.columns.str.lower().str.strip()
+        
+        # Find the date column (might be called 'date' or 'Date')
+        date_col = [c for c in fuel_df.columns if 'date' in c.lower()][0] if any('date' in c.lower() for c in fuel_df.columns) else None
+        if not date_col:
+            raise ValueError("No date column found in fuel data")
+        
+        fuel_df['date'] = pd.to_datetime(fuel_df[date_col])
+        fuel_df['date'] = fuel_df['date'].dt.to_period('M').dt.to_timestamp()
+        
+        # Find diesel price column
+        diesel_col = [c for c in fuel_df.columns if 'diesel' in c.lower() or 'ago' in c.lower()][0] if any('diesel' in c.lower() or 'ago' in c.lower() for c in fuel_df.columns) else None
+        if not diesel_col:
+            raise ValueError("No diesel price column found in fuel data")
+        
+        fuel_df['diesel_price'] = pd.to_numeric(fuel_df[diesel_col], errors='coerce')
+        fuel_df = fuel_df[['date', 'diesel_price']].dropna().drop_duplicates(subset=['date']).sort_values('date').reset_index(drop=True)
         fuel_df['diesel_price_lag_1'] = fuel_df['diesel_price'].shift(1)
+        fuel_clean = fuel_df[['date', 'diesel_price_lag_1']].dropna().reset_index(drop=True)
         
-        # Merge datasets
-        merged_df = food_df.merge(rainfall_df[['date', 'admin2', 'rfh', 'r3q_lag_3']], 
-                                   on=['date', 'admin2'], how='left')
-        merged_df = merged_df.merge(fuel_df[['date', 'diesel_price_lag_1']], 
-                                     on='date', how='left')
-        merged_df.dropna(inplace=True)
+        # STEP 4: Merge datasets carefully
+        # Start with food data
+        result = food_df[['date', 'admin2', 'commodity', 'pricetype', 'year', 'month', 'price']].copy()
+        
+        # Merge with rainfall
+        result = result.merge(rainfall_clean, on=['date', 'admin2'], how='left', validate='many_to_one')
+        
+        # Merge with fuel
+        result = result.merge(fuel_clean, on='date', how='left', validate='many_to_one')
+        
+        # STEP 5: Final cleaning
+        result = result.dropna(subset=['rfh', 'r3q_lag_3', 'diesel_price_lag_1']).reset_index(drop=True)
+        
+        # Ensure no duplicate columns
+        result = result.loc[:, ~result.columns.duplicated()]
         
         # Prepare features and target
-        X = merged_df[['admin2', 'commodity', 'pricetype', 'year', 'month', 'rfh', 'r3q_lag_3', 'diesel_price_lag_1']]
-        y = merged_df['price']
+        X = result[['admin2', 'commodity', 'pricetype', 'year', 'month', 'rfh', 'r3q_lag_3', 'diesel_price_lag_1']].copy()
+        y = result['price'].copy()
         
-        # Split data
+        # STEP 6: Train-test split
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train = X_train.reset_index(drop=True)
+        X_test = X_test.reset_index(drop=True)
         
-        # Standardize numeric features
+        # STEP 7: Scale numeric features
         numeric_features = ['year', 'month', 'rfh', 'r3q_lag_3', 'diesel_price_lag_1']
         scaler = StandardScaler()
         X_train[numeric_features] = scaler.fit_transform(X_train[numeric_features])
         X_test[numeric_features] = scaler.transform(X_test[numeric_features])
         
-        # One-hot encode categorical features
+        # STEP 8: Encode categorical features
         categorical_features = ['admin2', 'commodity', 'pricetype']
         encoder = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
         
-        X_train_encoded = encoder.fit_transform(X_train[categorical_features])
-        X_test_encoded = encoder.transform(X_test[categorical_features])
+        X_train_cat = X_train[categorical_features].copy()
+        X_test_cat = X_test[categorical_features].copy()
         
-        X_train_encoded_df = pd.DataFrame(
-            X_train_encoded,
-            columns=encoder.get_feature_names_out(categorical_features),
-            index=X_train.index
-        )
-        X_test_encoded_df = pd.DataFrame(
-            X_test_encoded,
-            columns=encoder.get_feature_names_out(categorical_features),
-            index=X_test.index
-        )
+        X_train_encoded = encoder.fit_transform(X_train_cat)
+        X_test_encoded = encoder.transform(X_test_cat)
         
-        X_train = pd.concat([X_train.drop(columns=categorical_features), X_train_encoded_df], axis=1)
-        X_test = pd.concat([X_test.drop(columns=categorical_features), X_test_encoded_df], axis=1)
+        # Get feature names
+        feature_names = encoder.get_feature_names_out(categorical_features)
         
-        return X_train, X_test, y_train, y_test, scaler, encoder, merged_df
+        # Create dataframes with encoded features
+        X_train_encoded_df = pd.DataFrame(X_train_encoded, columns=feature_names, index=X_train.index)
+        X_test_encoded_df = pd.DataFrame(X_test_encoded, columns=feature_names, index=X_test.index)
+        
+        # Remove categorical features from original and concat with encoded
+        X_train = X_train.drop(columns=categorical_features)
+        X_test = X_test.drop(columns=categorical_features)
+        
+        X_train = pd.concat([X_train.reset_index(drop=True), X_train_encoded_df.reset_index(drop=True)], axis=1)
+        X_test = pd.concat([X_test.reset_index(drop=True), X_test_encoded_df.reset_index(drop=True)], axis=1)
+        
+        return X_train, X_test, y_train.reset_index(drop=True), y_test.reset_index(drop=True), scaler, encoder, result
+        
     except Exception as e:
         st.error(f"Error preprocessing data: {e}")
+        import traceback
+        st.error(traceback.format_exc())
         return None, None, None, None, None, None, None
 
 def train_linear_regression(X_train, y_train):
@@ -668,15 +717,25 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                         scaler = st.session_state.data_cache['scaler']
                         encoder = st.session_state.data_cache['encoder']
                         
-                        # Prepare prediction input
+                        # Prepare prediction input - match training pipeline
                         numeric_cols = ['year', 'month', 'rfh', 'r3q_lag_3', 'diesel_price_lag_1']
                         cat_cols = ['admin2', 'commodity', 'pricetype']
                         
+                        # Scale numeric features
                         pred_numeric = scaler.transform(prediction_data[numeric_cols])
-                        pred_categorical = encoder.transform(prediction_data[cat_cols])
+                        pred_numeric_df = pd.DataFrame(pred_numeric, columns=numeric_cols)
                         
-                        pred_input = np.hstack([pred_numeric, pred_categorical])
-                        price_pred = model.predict(pred_input)[0]
+                        # Encode categorical features
+                        pred_categorical = encoder.transform(prediction_data[cat_cols])
+                        pred_categorical_df = pd.DataFrame(
+                            pred_categorical,
+                            columns=encoder.get_feature_names_out(cat_cols)
+                        )
+                        
+                        # Concatenate in same order as training
+                        pred_input = pd.concat([pred_numeric_df, pred_categorical_df], axis=1)
+                        
+                        price_pred = model.predict(pred_input.values)[0]
                         prediction_results[model_name] = price_pred
                         
                         with prediction_cols[idx]:
@@ -689,7 +748,7 @@ if food_df is not None and rainfall_df is not None and fuel_df is not None:
                     
                     except Exception as e:
                         with prediction_cols[idx]:
-                            st.warning(f"⚠️ {model_name}: {str(e)[:50]}")
+                            st.warning(f"⚠️ {model_name}: Error - {str(e)[:80]}")
                 
                 # Average prediction with beautiful styling
                 if prediction_results:
