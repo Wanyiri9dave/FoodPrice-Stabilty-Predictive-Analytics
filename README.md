@@ -19,9 +19,13 @@ This project seeks to mitigate these imbalances by utilizing time-series forecas
 Leila Abdikarim – Exploartory Data Analysis  
 Dave Ndung'u – Machine Learning & Modelling  
 Mading Garang – Machine learning & Modelling 
-
 Trevor Obonyo – NonTechnical Presentation
 Clive Kinyanjui – Business Intelligence Tools
 
 ## 📊 Dataset
 This project utilised three datasets because food prices as stated above depend on more than factor.That is fuel prices,amount of rain recieved in a certain time span and lastly past food prices.
+
+- WFP (HDX) → Historical food prices
+- CHIRPS → Rainfall data
+- EPRA → Fuel (diesel & petrol) prices
+
