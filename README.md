@@ -1,16 +1,15 @@
 # FoodPrice-Stabilty-Predictive-Analytics
 
 ## 📌 Introduction
---
 
 Food pricing is one of the key factors that determine access to food. An increase in food prices reduces the purchasing power and therefore limits the quantity of food that can be purchased. The food inflation rate has more than doubled in the past year to 13.8% as of June 2022 from 6.32% in June 2021.Some of the items in the food basket driving food inflation include wheat, cooking oil, maize flour, milk, potatoes, onion and carrot. The highest average price change is recorded for maize flour at 67% Kenyans through social media campaigns have been pressuring the government into taking specific actions on food prices.These unpredictable fluctuations create a destabilizing cycle for both consumers and producers, as the market rapidly oscillates between wasteful surpluses and acute shortages.
 
 ## 🌟 Highlights
--Built a baseline model
--Use ensembling methods 
--Develop a time series forecaster
--Cross validation on the model
--make predictions
+- Built a baseline model
+- Use ensembling methods 
+- Develop a time series forecaster
+- Cross validation on the model
+- make predictions
 
 ## ℹ️ Overview
 
