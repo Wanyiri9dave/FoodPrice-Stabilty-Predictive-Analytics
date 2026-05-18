@@ -19,6 +19,7 @@ This project seeks to mitigate these imbalances by utilizing time-series forecas
 Leila Abdikarim – Exploartory Data Analysis  
 Dave Ndung'u – Machine Learning & Modelling  
 Mading Garang – Machine learning & Modelling 
+
 Trevor Obonyo – NonTechnical Presentation
 Clive Kinyanjui – Business Intelligence Tools
 
