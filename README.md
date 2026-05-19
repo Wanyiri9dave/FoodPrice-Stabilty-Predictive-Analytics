@@ -99,6 +99,9 @@ Ensure you have Python 3.8+ installed along with the following libraries:
 ```bash`
 pip install pandas numpy matplotlib seaborn scikit-learn statsmodels xgboost
 
+## 🚀 Interactive Tableau Story
+View the live [Kenya Food Market Analysis Dashboard](https://public.tableau.com/views/G6_Food_Price_Analysis/KenyaFoodMarketInsights?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link) to analyze historical retail price anomalies and macro-economic supply shocks.
+
 ## 💖 Thank You!
 
 Thank you for exploring the Food Price Stability Predictive Analytics project! We hope this platform serves as an impactful tool for using predictive machine learning to support sustainable food supply chains and socio-economic planning.
