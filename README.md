@@ -4,6 +4,11 @@
 ![Machine Learning](https://img.shields.io/badge/ML-Recommendation_System-orange)
 ![Status](https://img.shields.io/badge/Status-Completed-green)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
+![Data Science](https://img.shields.io/badge/Data_Science-Agriculture_%26_Food_Security-green?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python)
+![Framework](https://img.shields.io/badge/Scikit_Learn-XGBoost-orange?style=for-the-badge)
+![Time Series](https://img.shields.io/badge/Time_Series-ARIMA-red?style=for-the-badge)
+![UI](https://img.shields.io/badge/Interface-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit)
 
 
 ## 📌 Introduction
@@ -74,6 +79,16 @@ The selected `ARIMA(0,1,1)` model projects baseline price paths coupled with dyn
 * **Forecast Trend:** Indicates a projected stabilization floor centered around approximately **62.31 KES**.
 * **Operational Guidelines:** * If incoming actual market observations remain strictly *inside* the shaded 95% confidence bounds, the predictive model remains valid.
   * If actual retail prices breach these margins, it acts as an analytical trigger indicating macro-shocks (such as unexpected policy changes or severe weather events), requiring a complete model refit.
+
+---
+
+## 💻 Interactive Streamlit Application
+An intuitive web dashboard built using **Streamlit** provides open-access interaction with the underlying predictive models. It bridges the gap between complex machine learning frameworks and non-technical stakeholders.
+
+### Key Features
+* **Real-Time Price Prediction:** Input parameters like regional weather forecasts, fuel costs, commodity types, and specific sub-counties to get instant price estimations.
+* **Trend Visualization:** Interactive chart panels displaying historical prices side-by-side with projected future market curves.
+* **Risk Alerts:** Evaluates and highlights impending risk tiers based on model confidence intervals for selected food baskets.
 
 ---
 
