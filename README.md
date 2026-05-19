@@ -103,12 +103,12 @@ pip install pandas numpy matplotlib seaborn scikit-learn statsmodels xgboost
 
 Thank you for exploring the Food Price Stability Predictive Analytics project! We hope this platform serves as an impactful tool for using predictive machine learning to support sustainable food supply chains and socio-economic planning.
 
-Ways to Support
+* Ways to Support
 Feedback: If you discover issues or have feature improvement suggestions, feel free to open an Issue.
 
-Contribute: Pull requests are always welcome if you want to extend this project to support additional regions or weather datasets.
+* Contribute: Pull requests are always welcome if you want to extend this project to support additional regions or weather datasets.
 
-Star: If this project was useful to your research or work, please give it a ⭐ to help others discover it!
+* Star: If this project was useful to your research or work, please give it a ⭐ to help others discover it!
 
 Built to empower sustainable, climate-resilient agricultural communities in Kenya. 📈🌽
 
