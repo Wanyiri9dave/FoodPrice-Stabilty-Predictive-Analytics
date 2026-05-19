@@ -27,11 +27,11 @@ Food pricing is one of the key factors that determine access to food. An increas
 This project seeks to mitigate these imbalances by utilizing time-series forecasting to provide reliable price predictions. By delivering actionable insights such as forecasting the value of a 90kg bag of maize half a year into the future the model empowers farmers in regions like Uasin Gishu to make informed, data-driven decisions on whether to maintain current crop cycles or pivot to more viable alternatives.
 
 ## ✍️ Authors
-Leila Abdikarim – Exploartory Data Analysis  
-Dave Ndung'u – Machine Learning & Modelling  
-Mading Garang – Machine learning & Modelling 
-Trevor Obonyo - Non-technical Presentattion
-Clive Kinyanjui - Business Inteligence Tools
+- Leila Abdikarim – Exploartory Data Analysis  
+- Dave Ndung'u – Machine Learning & Modelling  
+- Mading Garang – Machine learning & Modelling
+- Trevor Obonyo - Non-technical Presentattion
+- Clive Kinyanjui - Business Inteligence Tools
 
 ## 📊 Datasets
 This project utilised three datasets because food prices as stated above depend on more than factor.That is fuel prices,amount of rain recieved in a certain time span and lastly past food prices.
