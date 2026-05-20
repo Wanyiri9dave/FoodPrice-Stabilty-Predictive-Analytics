@@ -24,7 +24,7 @@ Food pricing is one of the key factors that determine access to food. An increas
 
 ## ℹ️ Overview
 
-This project seeks to mitigate these imbalances by utilizing time-series forecasting to provide reliable price predictions. By delivering actionable insights such as forecasting the value of a 90kg bag of maize half a year into the future the model empowers farmers in regions like Uasin Gishu to make informed, data-driven decisions on whether to maintain current crop cycles or pivot to more viable alternatives.
+This project seeks to mitigate these imbalances by utilizing time-series forecasting to provide reliable price predictions. By delivering actionable insights such as forecasting the value of a bag of maize half a year,the model empowers farmers in regions to make informed, data-driven decisions on whether to maintain current crop cycles or pivot to more viable alternatives.
 
 ## ✍️ Authors
 - Leila Abdikarim – Exploartory Data Analysis  
