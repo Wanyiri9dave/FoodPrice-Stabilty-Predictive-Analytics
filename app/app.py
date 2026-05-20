@@ -325,15 +325,18 @@ def prepare_train_test_data(merged_df):
         X = merged_df[features].copy()
         y = merged_df[target].copy()
 
+        X["month_sin"] = np.sin(2 * np.pi * X["month"] / 12)
+        X["month_cos"] = np.cos(2 * np.pi * X["month"] / 12)
+
+        numeric_cols = ["year", "month_sin", "month_cos", "rfh", "r3q_lag_3", "diesel_price_lag_1"]
+        categorical_cols = ["admin2", "commodity", "pricetype"]
+
         X_train, X_test, y_train, y_test = train_test_split(
             X,
             y,
             test_size=0.2,
             random_state=42
         )
-
-        numeric_cols = ["year", "month", "rfh", "r3q_lag_3", "diesel_price_lag_1"]
-        categorical_cols = ["admin2", "commodity", "pricetype"]
 
         scaler = StandardScaler()
         encoder = create_one_hot_encoder()
@@ -352,11 +355,15 @@ def prepare_train_test_data(merged_df):
         X_train_final = pd.DataFrame(X_train_final, columns=feature_names)
         X_test_final = pd.DataFrame(X_test_final, columns=feature_names)
 
+        y_train_log = np.log1p(y_train)
+        y_test_actual = y_test.copy()
+
         return {
             "X_train": X_train_final,
             "X_test": X_test_final,
-            "y_train": y_train,
-            "y_test": y_test,
+            "y_train": y_train_log,
+            "y_test": np.log1p(y_test),
+            "y_test_actual": y_test_actual,
             "scaler": scaler,
             "encoder": encoder,
             "numeric_cols": numeric_cols,
@@ -400,18 +407,19 @@ def train_models(X_train, y_train):
     return trained_models
 
 
-def evaluate_models(models, X_test, y_test):
+def evaluate_models(models, X_test, y_test, y_test_actual):
     """
     Evaluate all trained models.
     """
     results = {}
 
     for model_name, model in models.items():
-        y_pred = model.predict(X_test)
+        y_pred_log = model.predict(X_test)
+        y_pred = np.expm1(y_pred_log)
 
-        mae = mean_absolute_error(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        r2 = r2_score(y_test, y_pred)
+        mae = mean_absolute_error(y_test_actual, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test_actual, y_pred))
+        r2 = r2_score(y_test_actual, y_pred)
 
         results[model_name] = {
             "model": model,
@@ -451,6 +459,9 @@ def prepare_prediction_input(
         "r3q_lag_3": [rainfall_lag],
         "diesel_price_lag_1": [diesel_lag]
     })
+
+    prediction_df["month_sin"] = np.sin(2 * np.pi * prediction_df["month"] / 12)
+    prediction_df["month_cos"] = np.cos(2 * np.pi * prediction_df["month"] / 12)
 
     pred_num = scaler.transform(prediction_df[numeric_cols])
     pred_cat = encoder.transform(prediction_df[categorical_cols])
@@ -638,7 +649,8 @@ else:
                         results = evaluate_models(
                             models,
                             prepared_data["X_test"],
-                            prepared_data["y_test"]
+                            prepared_data["y_test"],
+                            prepared_data["y_test_actual"]
                         )
 
                         st.session_state.model_cache = results
@@ -705,7 +717,7 @@ else:
 
             for model_name, values in st.session_state.model_cache.items():
                 with st.expander(f"{model_name} Prediction Plot"):
-                    y_test = st.session_state.data_cache["y_test"]
+                    y_test = st.session_state.data_cache["y_test_actual"]
                     y_pred = values["y_pred"]
 
                     fig, ax = plt.subplots(figsize=(10, 6))
@@ -754,73 +766,62 @@ else:
                             categorical_cols=st.session_state.data_cache["categorical_cols"]
                         )
 
-                        predicted_price = values["model"].predict(pred_input)[0]
+                        predicted_log_price = values["model"].predict(pred_input)[0]
+                        predicted_price = np.expm1(predicted_log_price)
                         prediction_results[model_name] = predicted_price
 
                     except Exception as e:
                         st.error(f"{model_name} prediction failed: {e}")
 
-                if prediction_results:
-                    st.markdown(
-                        f"""
-                        <div class="prediction-result">
-                            <h2>🎯 Prediction Result</h2>
-                            <p><strong>{commodity}</strong> in <strong>{location}</strong></p>
-                            <p>{price_type} price | {month}/{year}</p>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                cols = st.columns(len(prediction_results))
 
-                    cols = st.columns(len(prediction_results))
+                for idx, (model_name, predicted_price) in enumerate(prediction_results.items()):
+                    with cols[idx]:
+                        st.markdown(
+                            f"""
+                            <div class="metric-card">
+                                <h3>{model_name}</h3>
+                                <div class="metric-value">KES {predicted_price:,.2f}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
 
-                    for idx, (model_name, predicted_price) in enumerate(prediction_results.items()):
-                        with cols[idx]:
-                            st.markdown(
-                                f"""
-                                <div class="metric-card">
-                                    <h3>{model_name}</h3>
-                                    <div class="metric-value">KES {predicted_price:,.2f}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
+                avg_prediction = np.mean(list(prediction_results.values()))
+                min_prediction = min(prediction_results.values())
+                max_prediction = max(prediction_results.values())
+                price_range = max_prediction - min_prediction
 
-                    avg_prediction = np.mean(list(prediction_results.values()))
-                    min_prediction = min(prediction_results.values())
-                    max_prediction = max(prediction_results.values())
-                    price_range = max_prediction - min_prediction
+                st.markdown("---")
+                st.markdown("### 📊 Prediction Summary")
 
-                    st.markdown("---")
-                    st.markdown("### 📊 Prediction Summary")
+                s1, s2, s3 = st.columns(3)
 
-                    s1, s2, s3 = st.columns(3)
+                with s1:
+                    st.metric("Average Prediction", f"KES {avg_prediction:,.2f}")
 
-                    with s1:
-                        st.metric("Average Prediction", f"KES {avg_prediction:,.2f}")
+                with s2:
+                    st.metric("Lowest Estimate", f"KES {min_prediction:,.2f}")
 
-                    with s2:
-                        st.metric("Lowest Estimate", f"KES {min_prediction:,.2f}")
+                with s3:
+                    st.metric("Highest Estimate", f"KES {max_prediction:,.2f}")
 
-                    with s3:
-                        st.metric("Highest Estimate", f"KES {max_prediction:,.2f}")
+                if avg_prediction > 0:
+                    confidence = 100 - ((price_range / avg_prediction) * 100)
+                    confidence = max(0, min(100, confidence))
+                else:
+                    confidence = 0
 
-                    if avg_prediction > 0:
-                        confidence = 100 - ((price_range / avg_prediction) * 100)
-                        confidence = max(0, min(100, confidence))
-                    else:
-                        confidence = 0
+                st.markdown("### 🎯 Model Agreement Confidence")
+                st.progress(confidence / 100)
+                st.write(f"Confidence: **{confidence:.1f}%**")
 
-                    st.markdown("### 🎯 Model Agreement Confidence")
-                    st.progress(confidence / 100)
-                    st.write(f"Confidence: **{confidence:.1f}%**")
-
-                    if confidence >= 80:
-                        st.success("High confidence: the models are giving similar predictions.")
-                    elif confidence >= 60:
-                        st.info("Moderate confidence: the models are fairly close.")
-                    else:
-                        st.warning("Low confidence: the models are giving different predictions.")
+                if confidence >= 80:
+                    st.success("High confidence: the models are giving similar predictions.")
+                elif confidence >= 60:
+                    st.info("Moderate confidence: the models are fairly close.")
+                else:
+                    st.warning("Low confidence: the models are giving different predictions.")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
